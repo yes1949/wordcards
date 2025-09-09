@@ -1146,7 +1146,7 @@
                     let content = this.elements.inputContent.value;
                     content = content.trim().replace(/\n\s*\n/g, '\n');
 
-                    const rawNewCards = content.split('。')
+                    const rawNewCards = content.split('分割符')
                         .map(s => s.trim())
                         .filter(s => s !== '');
 
@@ -1432,3 +1432,4 @@
     </script>
 </body>
 </html>
+
