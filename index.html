@@ -153,6 +153,9 @@
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
         }
+
+        /* --- [CSS MODIFIED] --- */
+        /* 移除了背景、边框、阴影和滚动条，使其成为一个透明的布局容器 */
         .card-display {
             flex-grow: 1; /* 填充可用垂直空间 */
             width: 100%;
@@ -163,6 +166,7 @@
             box-sizing: border-box;
         }
         
+        /* --- [CSS MODIFIED] --- */
         .card-content { 
             font-size: 4.27vw; 
             line-height: 1.6; 
@@ -296,8 +300,10 @@
 
         /* ----------------------- 筛选框样式 ----------------------- */
         .filter-section {
-            width: 90%;
-            margin: 2vw auto 2vw auto;
+            /* --- [CSS MODIFIED] --- */
+            width: 90%; /* 加宽以分散按钮 */
+            margin: 2vw auto 2vw auto; /* 调整边距 */
+
             padding: 0;
             background-color: transparent; 
             box-shadow: none; 
@@ -354,7 +360,6 @@
     </nav>
 
     <div id="page1" class="page-container active">
-
         <div class="filter-section" id="pastdayFilterSection">
             </div>
         <div id="progressDisplay" class="progress-display"></div>
@@ -421,6 +426,7 @@
     <div id="toast" class="toast" style="display: none;"></div>
 
     <script>
+    // JavaScript部分已同步修改
     document.addEventListener('DOMContentLoaded', () => {
         const APP_VERSION = 'v2.4'; 
 
@@ -524,14 +530,23 @@
                     cardCount: 0, 
                     swipeCount: 0, 
                     todaySwipeCount: 0,
-                    currentMode: 'A',
+                    
+                    currentMode: 'A', // 'A', '0', '1', '-1'
+                    
+                    // 模式0 (allword) 进度
                     i: 0, j: 0, k: 0, 
                     allword: [], allword1: [],
+                    
+                    // 模式1 (todayword) 进度
                     x: 0, n: 0, m: 0,
                     todayword: [], todayword1: [],
+
+                    // 模式-1 (todayNewWord) 进度
                     y: 0, z: 0, p: 0,
                     todayNewWord: [], todayNewWord1: [],
                 },
+                // --- [JS MODIFIED] ---
+                // 移除了对统计信息相关DOM元素的引用
                 elements: {
                     displayContent: document.getElementById('displayContent'), 
                     confirmDialog: document.getElementById('confirmDialog'),
@@ -551,6 +566,8 @@
                     this.onShow(); 
                 },
                 onShow() {
+                    // --- [JS MODIFIED] ---
+                    // 移除了统计信息更新相关的函数调用
                     this.loadProgress();
                     this.getRandomContent(false);
                     this.updateProgressDisplay();
@@ -566,6 +583,7 @@
                     document.getElementById('confirmDeleteBtn').addEventListener('click', () => this.confirmDelete());
                     document.getElementById('spellCheckDialog').addEventListener('click', () => this.closeSpellCheck());
                     this.elements.spellInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') this.checkSpelling(); });
+
                     this.elements.pastdayFilterSection.addEventListener('click', (e) => {
                         if (e.target.classList.contains('filter-dot')) {
                             const mode = e.target.dataset.value;
@@ -578,7 +596,9 @@
                     this.filterOptions.forEach(value => {
                         const dot = document.createElement('div');
                         dot.classList.add('filter-dot');
-                        if (this.data.currentMode === value) dot.classList.add('selected');
+                        if (this.data.currentMode === value) {
+                            dot.classList.add('selected');
+                        }
                         dot.textContent = value; 
                         dot.dataset.value = value;
                         this.elements.pastdayFilterSection.appendChild(dot);
@@ -586,17 +606,22 @@
                 },
                 changeMode(newMode) {
                     if (this.data.currentMode === newMode) return;
+
                     this.saveProgress();
+
                     this.data.currentMode = newMode;
                     this.renderFilterDots();
                     this.getRandomContent(false);
                     this.updateProgressDisplay();
                 },
+                
                 handleDailyDataInitialization() {
                     const today = new Date().toLocaleDateString('en-CA');
                     const lastInitDate = wx.getStorageSync('lastInitDate');
+
                     let cards = wx.getStorageSync('myCards') || [];
                     let updated = false;
+
                     if (lastInitDate !== today) {
                         console.log('Daily initialization triggered for a new day.');
                         cards = cards.map(card => {
@@ -606,49 +631,75 @@
                             }
                             return card;
                         });
-                        if (updated) wx.setStorageSync('myCards', cards);
+                        if (updated) {
+                            wx.setStorageSync('myCards', cards);
+                        }
                         wx.setStorageSync('lastInitDate', today);
+
                         this.data.allword = [...cards];
-                        this.data.todayword = cards.filter(card => this.TODAY_PASTDAYS_FILTER.includes(card.pastday));
+                        this.data.todayword = cards.filter(card => 
+                            this.TODAY_PASTDAYS_FILTER.includes(card.pastday)
+                        );
                         this.data.todayNewWord = cards.filter(card => card.pastday === 0);
+
                         wx.setStorageSync('allword', this.data.allword);
                         wx.setStorageSync('todayword', this.data.todayword);
                         wx.setStorageSync('todayNewWord', this.data.todayNewWord);
+
                         this.data.i = 0; this.data.j = 0; this.data.k = 0;
                         this.data.x = 0; this.data.n = 0; this.data.m = 0;
                         this.data.y = 0; this.data.z = 0; this.data.p = 0;
+
                         this.data.allword1 = [];
                         this.data.todayword1 = [];
                         this.data.todayNewWord1 = [];
+
                         this.saveProgress();
+                        
                         wx.setStorageSync('todaySwipeData', { date: today, count: 0 });
                     } else {
                         this.data.allword = [...cards];
-                        this.data.todayword = cards.filter(card => this.TODAY_PASTDAYS_FILTER.includes(card.pastday));
+                        this.data.todayword = cards.filter(card => 
+                            this.TODAY_PASTDAYS_FILTER.includes(card.pastday)
+                        );
                         this.data.todayNewWord = cards.filter(card => card.pastday === 0);
+
                         this.data.allword1 = wx.getStorageSync('allword1') || [];
                         this.data.todayword1 = wx.getStorageSync('todayword1') || [];
                         this.data.todayNewWord1 = wx.getStorageSync('todayNewWord1') || [];
                     }
+                    console.log('allword initialized:', this.data.allword.length);
+                    console.log('todayword initialized:', this.data.todayword.length);
+                    console.log('todayNewWord initialized:', this.data.todayNewWord.length);
                 },
+
                 loadProgress() {
                     const savedProgress = wx.getStorageSync('progressData') || {};
                     const today = new Date().toLocaleDateString('en-CA');
                     const lastProgressDate = savedProgress.date;
+
                     if (lastProgressDate === today) {
-                        this.data.i = savedProgress.i || 0; this.data.j = savedProgress.j || 0; this.data.k = savedProgress.k || 0;
-                        this.data.x = savedProgress.x || 0; this.data.n = savedProgress.n || 0; this.data.m = savedProgress.m || 0;
-                        this.data.y = savedProgress.y || 0; this.data.z = savedProgress.z || 0; this.data.p = savedProgress.p || 0;
+                        this.data.i = savedProgress.i || 0;
+                        this.data.j = savedProgress.j || 0;
+                        this.data.k = savedProgress.k || 0;
+                        this.data.x = savedProgress.x || 0;
+                        this.data.n = savedProgress.n || 0;
+                        this.data.m = savedProgress.m || 0;
+                        this.data.y = savedProgress.y || 0;
+                        this.data.z = savedProgress.z || 0;
+                        this.data.p = savedProgress.p || 0;
                         this.data.currentMode = savedProgress.currentMode || 'A';
                     } else {
                         this.data.currentMode = 'A';
                     }
                     this.renderFilterDots();
                 },
+
                 saveProgress() {
                     const today = new Date().toLocaleDateString('en-CA');
                     const progressData = {
-                        date: today, currentMode: this.data.currentMode,
+                        date: today,
+                        currentMode: this.data.currentMode,
                         i: this.data.i, j: this.data.j, k: this.data.k,
                         x: this.data.x, n: this.data.n, m: this.data.m,
                         y: this.data.y, z: this.data.z, p: this.data.p,
@@ -658,6 +709,7 @@
                     wx.setStorageSync('todayword1', this.data.todayword1);
                     wx.setStorageSync('todayNewWord1', this.data.todayNewWord1);
                 },
+                
                 updateProgressDisplay() {
                     let displayString = '';
                     if (this.data.currentMode === '0') {
@@ -679,10 +731,10 @@
                     this.elements.progressDisplay.textContent = displayString;
                 },
 
-                // --- [JS MODIFIED] ---
-                // 此函数已更新，以实现内容置底逻辑
                 getRandomContent(isUserAction = false) {   
                     if (isUserAction) { 
+                        // --- [JS MODIFIED] ---
+                        // 虽然不显示，但仍在后台记录刷卡次数
                         let totalCount = (wx.getStorageSync('swipeCount') || 0) + 1;
                         wx.setStorageSync('swipeCount', totalCount);
                         this.data.swipeCount = totalCount;
@@ -700,100 +752,123 @@
                     
                     let currentCardsPool = [];
                     let selectedCard = null;
+                    let selectedCardIndexInPool = -1;
 
                     if (this.data.currentMode === 'A') {
                         currentCardsPool = [...this.data.allword];
-                        if (currentCardsPool.length > 0) selectedCard = currentCardsPool[Math.floor(Math.random() * currentCardsPool.length)];
+                        if (currentCardsPool.length > 0) {
+                            selectedCardIndexInPool = Math.floor(Math.random() * currentCardsPool.length);
+                            selectedCard = currentCardsPool[selectedCardIndexInPool];
+                        }
                     } else if (this.data.currentMode === '0') {
                         if (this.data.allword1.length === 0) {
                             this.data.allword1 = [...this.data.allword];
-                            if (this.data.allword1.length > 0) {
-                                this.data.j = this.data.allword.length; this.data.i = 0; this.data.k++;
+                            if (this.data.allword1.length === 0) {
+                                this.elements.displayContent.textContent = '暂无内容，请添加';
+                                this.data.currentIndex = -1;
+                                wx.showToast({ title: '当前筛选无卡片', icon: 'info', duration: 1500 });
+                                this.updateProgressDisplay();
+                                this.saveProgress();
+                                return;
                             }
+                            this.data.j = this.data.allword.length;
+                            this.data.i = 0;
+                            this.data.k++;
                         }
                         currentCardsPool = this.data.allword1;
-                        if (currentCardsPool.length > 0) {
-                            const selectedIdx = Math.floor(Math.random() * currentCardsPool.length);
-                            selectedCard = currentCardsPool[selectedIdx];
-                            if (isUserAction) {
-                                this.data.allword1.splice(selectedIdx, 1);
-                                this.data.i = this.data.j - this.data.allword1.length;
-                            }
+                        if (isUserAction && currentCardsPool.length > 0) {
+                            selectedCardIndexInPool = Math.floor(Math.random() * currentCardsPool.length);
+                            selectedCard = currentCardsPool[selectedCardIndexInPool];
+                            this.data.allword1.splice(selectedCardIndexInPool, 1);
+                            this.data.i = this.data.j - this.data.allword1.length;
+                        } else if (!isUserAction && currentCardsPool.length > 0) {
+                            selectedCardIndexInPool = Math.floor(Math.random() * currentCardsPool.length);
+                            selectedCard = currentCardsPool[selectedCardIndexInPool];
                         }
                     } else if (this.data.currentMode === '1') {
                         if (this.data.todayword1.length === 0) {
                             this.data.todayword1 = [...this.data.todayword];
-                            if (this.data.todayword1.length > 0) {
-                                this.data.n = this.data.todayword.length; this.data.x = 0; this.data.m++;
+                            if (this.data.todayword1.length === 0) {
+                                this.elements.displayContent.textContent = '暂无内容，请添加';
+                                this.data.currentIndex = -1;
+                                wx.showToast({ title: '当前筛选无卡片', icon: 'info', duration: 1500 });
+                                this.updateProgressDisplay();
+                                this.saveProgress();
+                                return;
                             }
+                            this.data.n = this.data.todayword.length;
+                            this.data.x = 0;
+                            this.data.m++;
                         }
                         currentCardsPool = this.data.todayword1;
-                        if (currentCardsPool.length > 0) {
-                            const selectedIdx = Math.floor(Math.random() * currentCardsPool.length);
-                            selectedCard = currentCardsPool[selectedIdx];
-                            if (isUserAction) {
-                                this.data.todayword1.splice(selectedIdx, 1);
-                                this.data.x = this.data.n - this.data.todayword1.length;
-                            }
+                        if (isUserAction && currentCardsPool.length > 0) {
+                            selectedCardIndexInPool = Math.floor(Math.random() * currentCardsPool.length);
+                            selectedCard = currentCardsPool[selectedCardIndexInPool];
+                            this.data.todayword1.splice(selectedCardIndexInPool, 1);
+                            this.data.x = this.data.n - this.data.todayword1.length;
+                        } else if (!isUserAction && currentCardsPool.length > 0) {
+                            selectedCardIndexInPool = Math.floor(Math.random() * currentCardsPool.length);
+                            selectedCard = currentCardsPool[selectedCardIndexInPool];
                         }
                     } else if (this.data.currentMode === '-1') {
                         if (this.data.todayNewWord1.length === 0) {
                             this.data.todayNewWord1 = [...this.data.todayNewWord];
-                            if (this.data.todayNewWord1.length > 0) {
-                                this.data.z = this.data.todayNewWord.length; this.data.y = 0; this.data.p++;
+                            if (this.data.todayNewWord1.length === 0) {
+                                this.elements.displayContent.textContent = '暂无内容，请添加';
+                                this.data.currentIndex = -1;
+                                wx.showToast({ title: '当前筛选无卡片', icon: 'info', duration: 1500 });
+                                this.updateProgressDisplay();
+                                this.saveProgress();
+                                return;
                             }
+                            this.data.z = this.data.todayNewWord.length;
+                            this.data.y = 0;
+                            this.data.p++;
                         }
                         currentCardsPool = this.data.todayNewWord1;
-                        if (currentCardsPool.length > 0) {
-                            const selectedIdx = Math.floor(Math.random() * currentCardsPool.length);
-                            selectedCard = currentCardsPool[selectedIdx];
-                            if (isUserAction) {
-                                this.data.todayNewWord1.splice(selectedIdx, 1);
-                                this.data.y = this.data.z - this.data.todayNewWord1.length;
-                            }
+                        if (isUserAction && currentCardsPool.length > 0) {
+                            selectedCardIndexInPool = Math.floor(Math.random() * currentCardsPool.length);
+                            selectedCard = currentCardsPool[selectedCardIndexInPool];
+                            this.data.todayNewWord1.splice(selectedCardIndexInPool, 1);
+                            this.data.y = this.data.z - this.data.todayNewWord1.length;
+                        } else if (!isUserAction && currentCardsPool.length > 0) {
+                            selectedCardIndexInPool = Math.floor(Math.random() * currentCardsPool.length);
+                            selectedCard = currentCardsPool[selectedCardIndexInPool];
                         }
                     }
 
-                    const MAX_LINES = 18;
-
-                    if (!selectedCard) {
-                        const padding = '<br>'.repeat(MAX_LINES > 1 ? MAX_LINES - 1 : 0);
-                        this.elements.displayContent.innerHTML = `${padding}暂无内容，请添加`;
-                        this.data.displayContent = '暂无内容，请添加';
-                        this.data.currentIndex = -1;
-                        if (isUserAction) wx.showToast({ title: '当前筛选无卡片', icon: 'info', duration: 1500 });
+                    if (!selectedCard) {  
+                        this.elements.displayContent.textContent = '暂无内容，请添加';   
+                        this.data.currentIndex = -1;    
+                        if (isUserAction) { 
+                            wx.showToast({ title: '当前筛选无卡片', icon: 'info', duration: 1500 });
+                        }
                         this.updateProgressDisplay();
                         this.saveProgress();
-                        return;
+                        return;    
                     }
-
-                    const originalDisplayWord = selectedCard.word.replace(new RegExp(NEWLINE_REPLACEMENT, 'g'), '\n');
-                    this.data.displayContent = originalDisplayWord;
-
-                    let paddedDisplayWord = originalDisplayWord;
-                    const currentLines = (paddedDisplayWord.match(/\n/g) || []).length + 1;
-                    if (currentLines < MAX_LINES) {
-                        const newlinesToPrepend = MAX_LINES - currentLines;
-                        const padding = '\n'.repeat(newlinesToPrepend);
-                        paddedDisplayWord = padding + paddedDisplayWord;
-                    }
-
+                    
+                    let displayWord = selectedCard.word.replace(new RegExp(NEWLINE_REPLACEMENT, 'g'), '\n');
+                    this.data.displayContent = displayWord;   
                     this.data.currentIndex = (wx.getStorageSync('myCards') || []).findIndex(card => 
                         card.word === selectedCard.word && card.pastday === selectedCard.pastday && card.createDate === selectedCard.createDate
                     );
-
+                    
                     const wordCounts = wx.getStorageSync('wordCounts') || {};
-                    const currentWordText = selectedCard.word;
-                    let count = wordCounts[currentWordText] || 0;
+                    const currentWordText = selectedCard.word;   
+                    
+                    let count = wordCounts[currentWordText] || 0;   
                     if (isUserAction) {
-                        count++;
+                        count = (wordCounts[currentWordText] || 0) + 1;
                         wordCounts[currentWordText] = count;
                         wx.setStorageSync('wordCounts', wordCounts);
                     }
-
-                    let displayHtml = `<div class="card-content-container"><span class="card-text">${paddedDisplayWord.replace(/\n/g, '<br>')}</span>`;
-                    if (count > 0) {
-                        displayHtml += `<div class="word-count">${count}</div>`;
+                    
+                    let displayHtml = `<div class="card-content-container">`;
+                    displayHtml += `<span class="card-text">${displayWord.replace(/\n/g, '<br>')}</span>`;   
+                    
+                    if (count > 0) {   
+                        displayHtml += `<div class="word-count">${count}</div>`;   
                     }
                     displayHtml += `</div>`;
                     this.elements.displayContent.innerHTML = displayHtml;
@@ -801,7 +876,7 @@
                     this.updateProgressDisplay();
                     this.saveProgress();
                 },
-
+                
                 drawOne() { this.getRandomContent(true); },
                 deleteContent() {
                     if (!this.data.displayContent || this.data.displayContent === '暂无内容，请添加') { wx.showToast({ title: '没有内容可删除', icon: 'error' }); return; }
@@ -819,38 +894,67 @@
                         wx.setStorageSync('myCards', myCards);   
                         
                         this.data.allword = [...myCards];
-                        this.data.todayword = myCards.filter(card => this.TODAY_PASTDAYS_FILTER.includes(card.pastday));
+                        this.data.todayword = myCards.filter(card => 
+                            this.TODAY_PASTDAYS_FILTER.includes(card.pastday)
+                        );
                         this.data.todayNewWord = myCards.filter(card => card.pastday === 0);
 
                         wx.setStorageSync('allword', this.data.allword);
                         wx.setStorageSync('todayword', this.data.todayword);
                         wx.setStorageSync('todayNewWord', this.data.todayNewWord);
 
-                        this.data.allword1 = this.data.allword1.filter(card => !(card.word === deletedCard.word && card.pastday === deletedCard.pastday && card.createDate === deletedCard.createDate));
-                        this.data.todayword1 = this.data.todayword1.filter(card => !(card.word === deletedCard.word && card.pastday === deletedCard.pastday && card.createDate === deletedCard.createDate));
-                        this.data.todayNewWord1 = this.data.todayNewWord1.filter(card => !(card.word === deletedCard.word && card.pastday === deletedCard.pastday && card.createDate === deletedCard.createDate));
+                        this.data.allword1 = this.data.allword1.filter(card => 
+                            !(card.word === deletedCard.word && card.pastday === deletedCard.pastday && card.createDate === deletedCard.createDate)
+                        );
+                        this.data.todayword1 = this.data.todayword1.filter(card => 
+                            !(card.word === deletedCard.word && card.pastday === deletedCard.pastday && card.createDate === deletedCard.createDate)
+                        );
+                        this.data.todayNewWord1 = this.data.todayNewWord1.filter(card => 
+                            !(card.word === deletedCard.word && card.pastday === deletedCard.pastday && card.createDate === deletedCard.createDate)
+                        );
                         
-                        this.data.j = this.data.allword.length; this.data.n = this.data.todayword.length; this.data.z = this.data.todayNewWord.length;
+                        this.data.j = this.data.allword.length;
+                        this.data.n = this.data.todayword.length;
+                        this.data.z = this.data.todayNewWord.length;
 
                         if (this.data.currentMode === '0') {
                             this.data.i = this.data.j - this.data.allword1.length;
-                            if (this.data.allword1.length === 0 && this.data.j > 0) { this.data.k++; this.data.allword1 = [...this.data.allword]; this.data.i = 0; } 
-                            else if (this.data.allword1.length === 0 && this.data.j === 0) { this.data.i = 0; }
+                            if (this.data.allword1.length === 0 && this.data.j > 0) {
+                                this.data.k++;
+                                this.data.allword1 = [...this.data.allword];
+                                this.data.i = 0;
+                            } else if (this.data.allword1.length === 0 && this.data.j === 0) {
+                                this.data.i = 0;
+                            }
                         }
                         if (this.data.currentMode === '1') {
                             this.data.x = this.data.n - this.data.todayword1.length;
-                            if (this.data.todayword1.length === 0 && this.data.n > 0) { this.data.m++; this.data.todayword1 = [...this.data.todayword]; this.data.x = 0; } 
-                            else if (this.data.todayword1.length === 0 && this.data.n === 0) { this.data.x = 0; }
+                            if (this.data.todayword1.length === 0 && this.data.n > 0) {
+                                this.data.m++;
+                                this.data.todayword1 = [...this.data.todayword];
+                                this.data.x = 0;
+                            } else if (this.data.todayword1.length === 0 && this.data.n === 0) {
+                                this.data.x = 0;
+                            }
                         }
                         if (this.data.currentMode === '-1') {
                             this.data.y = this.data.z - this.data.todayNewWord1.length;
-                            if (this.data.todayNewWord1.length === 0 && this.data.z > 0) { this.data.p++; this.data.todayNewWord1 = [...this.data.todayNewWord]; this.data.y = 0; } 
-                            else if (this.data.todayNewWord1.length === 0 && this.data.z === 0) { this.data.y = 0; }
+                            if (this.data.todayNewWord1.length === 0 && this.data.z > 0) {
+                                this.data.p++;
+                                this.data.todayNewWord1 = [...this.data.todayNewWord];
+                                this.data.y = 0;
+                            } else if (this.data.todayNewWord1.length === 0 && this.data.z === 0) {
+                                this.data.y = 0;
+                            }
                         }
+
                         this.saveProgress();
 
                         let wordCounts = wx.getStorageSync('wordCounts') || {};
-                        if (wordCounts[deletedWord]) { delete wordCounts[deletedWord]; wx.setStorageSync('wordCounts', wordCounts); }
+                        if (wordCounts[deletedWord]) {
+                            delete wordCounts[deletedWord];
+                            wx.setStorageSync('wordCounts', wordCounts);
+                        }
                         
                         wx.showToast({ title: '删除成功', icon: 'success' });   
                         this.getRandomContent(false);
@@ -872,7 +976,10 @@
                     wx.setClipboardData({ data: word }); const encodedWord = encodeURIComponent(word.trim()); const url = `eudic://dict/${encodedWord}`; window.location.href = url;
                 },
                 openSpellCheck() {
-                    if (!this.data.displayContent || this.data.displayContent === '暂无内容，请添加') { wx.showToast({ title: '没有内容可拼写', icon: 'error' }); return; }
+                    if (!this.data.displayContent || this.data.displayContent === '暂无内容，请添加') {
+                        wx.showToast({ title: '没有内容可拼写', icon: 'error' });
+                        return;
+                    }
                     this.elements.spellInput.value = '';
                     this.elements.spellMessageContainer.innerHTML = '';
                     this.elements.spellInput.classList.remove('error');
@@ -884,6 +991,7 @@
                 checkSpelling() {
                     if (this.data.isChecking) return; this.data.isChecking = true; const input = this.elements.spellInput.value.trim().toLowerCase();   
                     const correct = (this.data.displayContent || '').trim().toLowerCase();   
+
                     const msgContainer = this.elements.spellMessageContainer;
                     if (!input) { msgContainer.innerHTML = `<div class="spell-error-msg">请输入单词</div>`; this.elements.spellInput.classList.add('error'); this.data.isChecking = false; return; }
                     if (input === correct) {
@@ -898,11 +1006,8 @@
                     }
                 }
             },
-            page2: { /* ... Page 2 JS ... */ },
-            page3: { /* ... Page 3 JS ... */ },
-        };
-        // Re-add the other page modules that were omitted for brevity
-        app.page2 = {
+            // =================================== PAGE 2: 管理 ===================================
+            page2: {
                 elements: { 
                     inputContent: document.getElementById('inputContent'), 
                     saveStatus: document.getElementById('saveStatus'),
@@ -921,19 +1026,33 @@
                     document.getElementById('copyAllBtn').addEventListener('click', () => this.copyAllContents());
                     document.getElementById('clearAllBtn').addEventListener('click', () => this.onClearAll());
                 },
+                
                 saveCard() {
                     let content = this.elements.inputContent.value;
                     content = content.trim().replace(/\n\s*\n/g, '\n');
-                    const rawNewCards = content.split('分割符').map(s => s.trim()).filter(s => s !== '');
-                    if (rawNewCards.length === 0) { wx.showToast({ title: '内容不能为空', icon: 'none' }); this.elements.inputContent.value = ''; return; }
+
+                    const rawNewCards = content.split('分割符')
+                        .map(s => s.trim())
+                        .filter(s => s !== '');
+
+                    if (rawNewCards.length === 0) {
+                        wx.showToast({ title: '内容不能为空', icon: 'none' });
+                        this.elements.inputContent.value = '';
+                        return;
+                    }
+
                     const today = new Date().toLocaleDateString('en-CA');
+
                     let existingCards = wx.getStorageSync('myCards') || [];
                     const existingWordSet = new Set(existingCards.map(card => card.word));
                     const addedWords = new Set();
                     let uniqueNewCards = [];
                     let duplicateCount = 0;
+
                     rawNewCards.forEach(newWordText => {
-                        let cleanedWordText = newWordText.trim().replace(/\n/g, NEWLINE_REPLACEMENT);
+                        let cleanedWordText = newWordText.trim(); 
+                        cleanedWordText = cleanedWordText.replace(/\n/g, NEWLINE_REPLACEMENT);
+
                         if (existingWordSet.has(cleanedWordText) || addedWords.has(cleanedWordText)) {
                             duplicateCount++;
                         } else {
@@ -941,60 +1060,140 @@
                             addedWords.add(cleanedWordText);
                         }
                     });
+
                     if (uniqueNewCards.length > 0) {
                         const updatedCards = existingCards.concat(uniqueNewCards);
                         wx.setStorageSync('myCards', updatedCards);
+
                         app.page1.data.allword = [...updatedCards];
-                        app.page1.data.todayword = updatedCards.filter(card => app.page1.TODAY_PASTDAYS_FILTER.includes(card.pastday));
+                        app.page1.data.todayword = updatedCards.filter(card => 
+                            app.page1.TODAY_PASTDAYS_FILTER.includes(card.pastday)
+                        );
                         app.page1.data.todayNewWord = updatedCards.filter(card => card.pastday === 0);
+
                         wx.setStorageSync('allword', app.page1.data.allword);
                         wx.setStorageSync('todayword', app.page1.data.todayword);
                         wx.setStorageSync('todayNewWord', app.page1.data.todayNewWord);
+
                         uniqueNewCards.forEach(newCard => {
-                            if (!app.page1.data.allword1.some(card => card.word === newCard.word)) app.page1.data.allword1.push(newCard);
-                            if (app.page1.TODAY_PASTDAYS_FILTER.includes(newCard.pastday) && !app.page1.data.todayword1.some(card => card.word === newCard.word)) app.page1.data.todayword1.push(newCard);
-                            if (newCard.pastday === 0 && !app.page1.data.todayNewWord1.some(card => card.word === newCard.word)) app.page1.data.todayNewWord1.push(newCard);
+                            if (!app.page1.data.allword1.some(card => card.word === newCard.word)) {
+                                app.page1.data.allword1.push(newCard);
+                            }
+                            if (app.page1.TODAY_PASTDAYS_FILTER.includes(newCard.pastday) && 
+                                !app.page1.data.todayword1.some(card => card.word === newCard.word)) {
+                                app.page1.data.todayword1.push(newCard);
+                            }
+                            if (newCard.pastday === 0 && !app.page1.data.todayNewWord1.some(card => card.word === newCard.word)) {
+                                app.page1.data.todayNewWord1.push(newCard);
+                            }
                         });
-                        app.page1.data.j = app.page1.data.allword.length; app.page1.data.n = app.page1.data.todayword.length; app.page1.data.z = app.page1.data.todayNewWord.length;
-                        if (app.page1.data.currentMode === '0') app.page1.data.i = app.page1.data.j - app.page1.data.allword1.length;
-                        else if (app.page1.data.currentMode === '1') app.page1.data.x = app.page1.data.n - app.page1.data.todayword1.length;
-                        else if (app.page1.data.currentMode === '-1') app.page1.data.y = app.page1.data.z - app.page1.data.todayNewWord1.length;
-                        app.page1.saveProgress();
+
+                        app.page1.data.j = app.page1.data.allword.length;
+                        app.page1.data.n = app.page1.data.todayword.length;
+                        app.page1.data.z = app.page1.data.todayNewWord.length;
+
+                        if (app.page1.data.currentMode === '0') {
+                            app.page1.data.i = app.page1.data.j - app.page1.data.allword1.length;
+                        } else if (app.page1.data.currentMode === '1') {
+                            app.page1.data.x = app.page1.data.n - app.page1.data.todayword1.length;
+                        } else if (app.page1.data.currentMode === '-1') {
+                            app.page1.data.y = app.page1.data.z - app.page1.data.todayNewWord1.length;
+                        }
+                        
+                        app.page1.saveProgress(); 
+
                         this.elements.saveStatus.textContent = `成功保存 ${uniqueNewCards.length} 条!`;
-                        if (duplicateCount > 0) wx.showToast({ title: `部分内容重复，跳过 ${duplicateCount} 条`, icon: 'info', duration: 3000 });
-                        else wx.showToast({ title: '保存成功', icon: 'success' });
-                    } else if (duplicateCount > 0) wx.showToast({ title: `全部内容重复，未保存`, icon: 'error', duration: 2500 });
-                    else wx.showToast({ title: '没有内容可保存', icon: 'none' });
+                        if (duplicateCount > 0) {
+                            wx.showToast({
+                                title: `部分内容重复，跳过 ${duplicateCount} 条`,
+                                icon: 'info',
+                                duration: 3000
+                            });
+                        } else {
+                            wx.showToast({ title: '保存成功', icon: 'success' });
+                        }
+                    } else if (duplicateCount > 0) {
+                        wx.showToast({
+                            title: `全部内容重复，未保存`,
+                            icon: 'error',
+                            duration: 2500
+                        });
+                    } else {
+                        wx.showToast({ title: '没有内容可保存', icon: 'none' });
+                    }
+
                     this.elements.inputContent.value = '';
                     setTimeout(() => { this.elements.saveStatus.textContent = ''; }, 2000);
                 },
+
                 copyAllContents() {
                     let cardsToCopy = [];
                     const currentMode = app.page1.data.currentMode;
-                    if (currentMode === 'A') cardsToCopy = wx.getStorageSync('myCards') || [];
-                    else if (currentMode === '0') cardsToCopy = app.page1.data.allword;
-                    else if (currentMode === '1') cardsToCopy = app.page1.data.todayword;
-                    else if (currentMode === '-1') cardsToCopy = app.page1.data.todayNewWord;
-                    const cardWords = cardsToCopy.map(card => card.word.replace(new RegExp(NEWLINE_REPLACEMENT, 'g'), '\n'));
+
+                    if (currentMode === 'A') {
+                        cardsToCopy = wx.getStorageSync('myCards') || [];
+                    } else if (currentMode === '0') {
+                        cardsToCopy = app.page1.data.allword;
+                    } else if (currentMode === '1') {
+                        cardsToCopy = app.page1.data.todayword;
+                    } else if (currentMode === '-1') {
+                        cardsToCopy = app.page1.data.todayNewWord;
+                    }
+
+                    const cardWords = cardsToCopy.map(card => {
+                        return card.word.replace(new RegExp(NEWLINE_REPLACEMENT, 'g'), '\n');
+                    });
+
                     if (cardWords.length === 0) { wx.showToast({ title: '没有内容可复制', icon: 'none' }); return; }
                     const contents = cardWords.join('。\n'); 
                     wx.setClipboardData({ data: contents, success: () => wx.showToast({ title: '复制成功', icon: 'success', duration: 1000 }) });
                 },
                 onClearAll() {
-                    wx.showModal({ title: '警告', content: '确定要清空所有内容吗？此操作不可恢复！',
-                        success: (res) => { if (res.confirm) { 
-                            wx.removeStorageSync('myCards'); wx.removeStorageSync('lastPastdayUpdateDate'); wx.removeStorageSync('wordCounts'); wx.removeStorageSync('markedWords'); wx.removeStorageSync('progressData'); wx.removeStorageSync('allword'); wx.removeStorageSync('todayword'); wx.removeStorageSync('todayNewWord'); wx.removeStorageSync('allword1'); wx.removeStorageSync('todayword1'); wx.removeStorageSync('todayNewWord1'); wx.removeStorageSync('lastInitDate'); 
-                            app.page1.data.allword = []; app.page1.data.allword1 = []; app.page1.data.todayword = []; app.page1.data.todayword1 = []; app.page1.data.todayNewWord = []; app.page1.data.todayNewWord1 = [];
-                            app.page1.data.i = 0; app.page1.data.j = 0; app.page1.data.k = 0; app.page1.data.x = 0; app.page1.data.n = 0; app.page1.data.m = 0; app.page1.data.y = 0; app.page1.data.z = 0; app.page1.data.p = 0; app.page1.data.currentMode = 'A'; 
-                            app.page1.getRandomContent(false); app.page1.renderFilterDots(); app.page1.updateProgressDisplay(); 
-                            this.elements.saveStatus.textContent = ''; wx.showToast({ title: '已清空', icon: 'success', duration: 1000 }); 
-                        }}
+                    wx.showModal({
+                        title: '警告', content: '确定要清空所有内容吗？此操作不可恢复！',
+                        success: (res) => { 
+                            if (res.confirm) { 
+                                wx.removeStorageSync('myCards'); 
+                                wx.removeStorageSync('lastPastdayUpdateDate'); 
+                                wx.removeStorageSync('wordCounts'); 
+                                wx.removeStorageSync('markedWords'); 
+                                
+                                wx.removeStorageSync('progressData'); 
+                                wx.removeStorageSync('allword'); 
+                                wx.removeStorageSync('todayword'); 
+                                wx.removeStorageSync('todayNewWord');
+                                wx.removeStorageSync('allword1'); 
+                                wx.removeStorageSync('todayword1'); 
+                                wx.removeStorageSync('todayNewWord1');
+                                wx.removeStorageSync('lastInitDate'); 
+
+                                app.page1.data.allword = []; app.page1.data.allword1 = [];
+                                app.page1.data.todayword = []; app.page1.data.todayword1 = [];
+                                app.page1.data.todayNewWord = []; app.page1.data.todayNewWord1 = [];
+
+                                app.page1.data.i = 0; app.page1.data.j = 0; app.page1.data.k = 0;
+                                app.page1.data.x = 0; app.page1.data.n = 0; app.page1.data.m = 0;
+                                app.page1.data.y = 0; app.page1.data.z = 0; app.page1.data.p = 0;
+                                app.page1.data.currentMode = 'A'; 
+                                
+                                app.page1.getRandomContent(false); 
+                                app.page1.renderFilterDots(); 
+                                app.page1.updateProgressDisplay(); 
+
+                                this.elements.saveStatus.textContent = ''; 
+                                wx.showToast({ title: '已清空', icon: 'success', duration: 1000 }); 
+                            } 
+                        }
                     });
                 }
-            };
-        app.page3 = {
-                data: { selectedWord: null },
-                elements: { container: document.getElementById('markedWordsContainer'), noMarkedMsg: document.getElementById('noMarkedMessage'), actionContainer: document.getElementById('page3ActionContainer'), deleteBtn: document.getElementById('deleteMarkedBtn'), travelBtn: document.getElementById('travelMarkedBtn') },
+            },
+            // =================================== PAGE 3: 已标记 ===================================
+            page3: {
+                data: { selectedWord: null, },
+                elements: {
+                    container: document.getElementById('markedWordsContainer'), noMarkedMsg: document.getElementById('noMarkedMessage'),
+                    actionContainer: document.getElementById('page3ActionContainer'), deleteBtn: document.getElementById('deleteMarkedBtn'), travelBtn: document.getElementById('travelMarkedBtn'),
+                },
                 onLoad() { this.addEventListeners(); },
                 onShow() { this.loadMarkedWords(); },
                 addEventListeners() {
@@ -1004,12 +1203,18 @@
                 loadMarkedWords() {
                     let words = wx.getStorageSync('markedWords') || [];
                     words = words.map(word => word.replace(new RegExp(NEWLINE_REPLACEMENT, 'g'), '\n'));
+
                     this.elements.container.innerHTML = ''; this.data.selectedWord = null; this.elements.actionContainer.style.display = 'none';
                     if (words.length === 0) { this.elements.noMarkedMsg.style.display = 'block'; }
                     else {
                         this.elements.noMarkedMsg.style.display = 'none';
                         words.forEach(word => {
-                            const wordEl = document.createElement('div'); wordEl.className = 'marked-word'; wordEl.innerHTML = word.replace(/\n/g, '<br>'); wordEl.dataset.word = word.replace(/\n/g, NEWLINE_REPLACEMENT); wordEl.addEventListener('click', (e) => this.selectWord(e)); this.elements.container.appendChild(wordEl);
+                            const wordEl = document.createElement('div');  
+                            wordEl.className = 'marked-word';   
+                            wordEl.innerHTML = word.replace(/\n/g, '<br>');   
+                            wordEl.dataset.word = word.replace(/\n/g, NEWLINE_REPLACEMENT);   
+                            wordEl.addEventListener('click', (e) => this.selectWord(e));   
+                            this.elements.container.appendChild(wordEl);
                         });
                     }
                 },
@@ -1024,14 +1229,21 @@
                 },
                 deleteSelectedWord() {
                     if (!this.data.selectedWord) return;
-                    let markedWords = wx.getStorageSync('markedWords') || []; markedWords = markedWords.filter(w => w !== this.data.selectedWord); wx.setStorageSync('markedWords', markedWords); wx.showToast({ title: '删除成功', icon: 'success', duration: 400 }); this.loadMarkedWords();
+                    let markedWords = wx.getStorageSync('markedWords') || [];   
+                    markedWords = markedWords.filter(w => w !== this.data.selectedWord);   
+                    wx.setStorageSync('markedWords', markedWords); wx.showToast({ title: '删除成功', icon: 'success', duration: 400 }); this.loadMarkedWords();
                 },
                 travelSelectedWord() {
-                    const word = this.data.selectedWord; if (!word) { wx.showToast({ title: '没有选中内容', icon: 'error' }); return; }
+                    const word = this.data.selectedWord;   
+                    if (!word) { wx.showToast({ title: '没有选中内容', icon: 'error' }); return; }
                     const actualWord = word.replace(new RegExp(NEWLINE_REPLACEMENT, 'g'), '\n');
-                    wx.setClipboardData({ data: actualWord }); const encodedWord = encodeURIComponent(actualWord.trim()); const url = `eudic://dict/${encodedWord}`; window.location.href = url;
+                    wx.setClipboardData({ data: actualWord });   
+                    const encodedWord = encodeURIComponent(actualWord.trim());   
+                    const url = `eudic://dict/${encodedWord}`;   
+                    window.location.href = url;
                 }
-            };
+            },
+        };
 
         // --- Initialize App ---
         Object.values(app).forEach(pageModule => { if(typeof pageModule.onLoad === 'function') pageModule.onLoad(); });
