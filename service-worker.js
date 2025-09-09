@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mycards-cache-v1';
+const CACHE_NAME = 'mycards-cache-v2';
 
 // 缓存所有核心文件，确保离线可用
 
@@ -105,3 +105,4 @@ self.addEventListener('activate', event => {
   );
 
 });
+
