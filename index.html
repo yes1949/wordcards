@@ -37,6 +37,8 @@
             padding: 1vw; /* 基础padding */
             box-sizing: border-box;
             padding-top: 80px; /* 为固定导航留出空间 */
+            /* --- [CSS MODIFIED] --- */
+            padding-bottom: 40vw; /* 为底部固定按钮栏留出空间，防止内容被遮挡 */
         }
 
         .page-container.active {
@@ -140,20 +142,18 @@
             background-color: #ffffff;
             border-radius: 2.67vw;
             box-shadow: 0 0.53vw 1.6vw rgba(0, 0, 0, 0.05);
-            padding: 3.73vw;
             margin: 2.67vw auto;
             width: 95%;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* --- [CSS MODIFIED] --- */
+            padding: 2vw 4vw;
         }
         .statistics {
-            margin: 1.07vw 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: nowrap;
+            /* --- [CSS MODIFIED] --- */
+            display: none; /* 隐藏旧的统计样式 */
         }
         .label { font-size: 3.73vw; color: #666; user-select: none; }
         .value { font-size: 4.27vw; font-weight: bold; color: #00bcd4; margin: 0 0.8vw; user-select: text; }
@@ -166,32 +166,42 @@
             max-width: 80vw;
             padding: 0 2.13vw calc(6.67vw + var(--safe-area-bottom));
             box-sizing: border-box;
-            background-color: transparent;
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* --- [CSS MODIFIED] --- */
+            background-color: #f5f7faf0; /* 添加背景以避免与下方滚动内容重叠 */
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
         }
+        /* --- [CSS MODIFIED] --- */
         .card-display {
+            flex-grow: 1; /* 填充可用垂直空间 */
             width: 100%;
-            min-height: 32vw;
-            max-height: 72.67vw;
-            padding: 1.07vw 0;
-            box-sizing: border-box;
+            margin: 1vw 0;
+            padding: 4vw;
+            background-color: #fff;
+            border-radius: 2.67vw;
+            box-shadow: 0 0.53vw 1.6vw rgba(0, 0, 0, 0.05);
+            overflow-y: auto;
             display: flex;
-            justify-content: center;
-            align-items: center;
+            justify-content: flex-start; /* 左对齐 */
+            align-items: flex-start; /* 顶部对齐 */
+            box-sizing: border-box;
+            min-height: auto;
+            max-height: none;
         }
         .card-content { 
             font-size: 4.27vw; 
             line-height: 1.6; 
             color: #333; 
-            text-align: center; 
             word-break: break-word; 
             user-select: text; 
-            /* 调整左右 padding，为角标留出空间 */
-            padding: 0 5.5vw; 
-            display: inline-block; /* 确保 padding 起作用 */
             box-sizing: border-box;
+            /* --- [CSS MODIFIED] --- */
+            text-align: left; /* 左对齐 */
+            width: 100%;
+            padding: 0; /* 父容器已添加内边距 */
         }
         .button-group { width: 100%; display: flex; flex-direction: column; gap: 2.13vw; padding-bottom: 0.67vw; box-sizing: border-box; }
         .button-row { display: flex; justify-content: space-between; gap: 1.6vw; width: 100%; }
@@ -319,7 +329,6 @@
         /* ----------------------- 新增筛选框样式 ----------------------- */
         .filter-section {
             width: 50%; /* 调整宽度以容纳更多按钮 */
-            margin: 1.5vw auto 0.5vw auto; /* 调整上边距，使其靠近统计卡片，下方留出一点空间 */
             padding: 0; /* 移除所有padding */
             background-color: transparent; 
             box-shadow: none; 
@@ -328,6 +337,8 @@
             justify-content: center; /* 水平居中 */
             gap: 2.5vw; /* 按钮间距更大一些，防止太挤 */
             box-sizing: border-box; /* 包含padding在内的宽度计算 */
+            /* --- [CSS MODIFIED] --- */
+            margin: 1vw auto 2vw auto; /* 调整边距，使其上移并与下方内容保持距离 */
         }
 
         .filter-dot {
@@ -366,6 +377,33 @@
             min-height: 20px; /* 预留空间避免跳动 */
             user-select: text;
         }
+
+        /* --- [CSS MODIFICATIONS START] --- */
+        /* 新增的统计行样式 */
+        .statistics-row {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 3.5vw;
+            color: #666;
+            user-select: none;
+            margin: 0.8vw 0;
+            flex-wrap: wrap;
+        }
+        .statistics-row:last-child {
+            justify-content: center;
+            margin-top: 1vw;
+            font-size: 3.2vw;
+        }
+        .statistics-row strong {
+            font-size: 3.8vw;
+            font-weight: bold;
+            color: #00bcd4;
+            margin: 0 0.5vw;
+            user-select: text;
+        }
+        /* --- [CSS MODIFICATIONS END] --- */
     </style>
 </head>
 <body>
@@ -377,20 +415,23 @@
 
     <div id="page1" class="page-container active">
         <div class="stats-card">
-            <div class="statistics"><span class="label">🔥 今天已刷</span><span class="value" id="todaySwipeCount">0</span><span class="label">次！</span></div>
-            <div class="statistics"><span class="label">🔁 总共刷了</span><span class="value" id="swipeCount">0</span><span class="label">次！</span></div>
-            <div class="statistics"><span class="label">📊 当前数据数量：</span><span class="value" id="cardCount">0 条</span></div>
-            <div class="statistics"><span class="label">⏱️ 最后更新：</span><span class="value" id="lastUpdateTime"></span></div>
+            <div class="statistics-row">
+                <span>🔁 总计: <strong id="swipeCount">0</strong> 次</span>
+                <span>🔥 今天: <strong id="todaySwipeCount">0</strong> 次</span>
+                <span>📊 数据: <strong id="cardCount">0 条</strong></span>
+            </div>
+            <div class="statistics-row">
+                <span>⏱️ 最后更新: <strong id="lastUpdateTime"></strong></span>
+            </div>
         </div>
 
         <div class="filter-section" id="pastdayFilterSection">
             </div>
         <div id="progressDisplay" class="progress-display"></div>
 
-
-        <div class="flex-grow"></div>
+        <div class="card-display"><span class="card-content" id="displayContent">暂无内容，请添加</span></div>
+        
         <div class="bottom-fixed-section">
-            <div class="card-display"><span class="card-content" id="displayContent">暂无内容，请添加</span></div>
             <div class="button-group">
                 <div class="button-row">
                     <button class="btn delete" id="deleteContentBtn">删除</button>
@@ -401,6 +442,7 @@
                 <button class="btn draw" id="drawOneBtn">下一张</button>
             </div>
         </div>
+
         <div id="confirmDialog" class="dialog-mask" style="display: none;">
             <div class="dialog-container" onclick="event.stopPropagation()">
                 <div class="dialog-header">确认删除</div>
@@ -449,6 +491,7 @@
     <div id="toast" class="toast" style="display: none;"></div>
 
     <script>
+    // JavaScript部分未做修改，可以继续使用
     document.addEventListener('DOMContentLoaded', () => {
         const APP_VERSION = 'v2.4'; 
 
@@ -811,7 +854,7 @@
                     this.elements.progressDisplay.textContent = displayString;
                 },
 
-                getRandomContent(isUserAction = false) {    
+                getRandomContent(isUserAction = false) {   
                     if (isUserAction) { 
                         let totalCount = (wx.getStorageSync('swipeCount') || 0) + 1;
                         wx.setStorageSync('swipeCount', totalCount);
@@ -936,8 +979,8 @@
                         }
                     }
 
-                    if (!selectedCard) {    
-                        this.elements.displayContent.textContent = '暂无内容，请添加';    
+                    if (!selectedCard) {  
+                        this.elements.displayContent.textContent = '暂无内容，请添加';   
                         this.data.currentIndex = -1;    
                         if (isUserAction) { 
                             wx.showToast({ title: '当前筛选无卡片', icon: 'info', duration: 1500 });
@@ -949,16 +992,16 @@
                     }
                     
                     let displayWord = selectedCard.word.replace(new RegExp(NEWLINE_REPLACEMENT, 'g'), '\n');
-                    this.data.displayContent = displayWord;    
+                    this.data.displayContent = displayWord;   
                     // 找到原始 myCards 中当前显示卡片的索引
                     this.data.currentIndex = (wx.getStorageSync('myCards') || []).findIndex(card => 
                         card.word === selectedCard.word && card.pastday === selectedCard.pastday && card.createDate === selectedCard.createDate
                     );
                     
                     const wordCounts = wx.getStorageSync('wordCounts') || {};
-                    const currentWordText = selectedCard.word;    
+                    const currentWordText = selectedCard.word;   
                     
-                    let count = wordCounts[currentWordText] || 0;    
+                    let count = wordCounts[currentWordText] || 0;   
                     if (isUserAction) {
                         // 只有用户点击下一张时才增加抽卡计数
                         count = (wordCounts[currentWordText] || 0) + 1;
@@ -967,10 +1010,10 @@
                     }
                     
                     let displayHtml = `<div class="card-content-container">`;
-                    displayHtml += `<span class="card-text">${displayWord.replace(/\n/g, '<br>')}</span>`;    
+                    displayHtml += `<span class="card-text">${displayWord.replace(/\n/g, '<br>')}</span>`;   
                     
-                    if (count > 0) {    
-                        displayHtml += `<div class="word-count">${count}</div>`;    
+                    if (count > 0) {   
+                        displayHtml += `<div class="word-count">${count}</div>`;   
                     }
                     displayHtml += `</div>`;
                     this.elements.displayContent.innerHTML = displayHtml;
@@ -979,26 +1022,25 @@
                     this.updateProgressDisplay();
                     this.saveProgress(); // 保存新的进度
                 },
-				
-                  
-				
-				
+                
+                
+                
                 drawOne() { this.getRandomContent(true); },
                 deleteContent() {
                     if (!this.data.displayContent || this.data.displayContent === '暂无内容，请添加') { wx.showToast({ title: '没有内容可删除', icon: 'error' }); return; }
                     this.elements.confirmDialog.style.display = 'flex';
                 },
                 confirmDelete() {
-                    let myCards = wx.getStorageSync('myCards') || [];    
-                    const indexToDelete = this.data.currentIndex;    
+                    let myCards = wx.getStorageSync('myCards') || [];   
+                    const indexToDelete = this.data.currentIndex;   
                     
-                    if (indexToDelete >= 0 && indexToDelete < myCards.length) {    
-                        const deletedCard = myCards[indexToDelete];    
-                        const deletedWord = deletedCard.word;    
+                    if (indexToDelete >= 0 && indexToDelete < myCards.length) {   
+                        const deletedCard = myCards[indexToDelete];   
+                        const deletedWord = deletedCard.word;   
 
                         // 1. 从 myCards 中删除
-                        myCards.splice(indexToDelete, 1);    
-                        wx.setStorageSync('myCards', myCards);    
+                        myCards.splice(indexToDelete, 1);   
+                        wx.setStorageSync('myCards', myCards);   
                         
                         // 2. 重新构建 allword, todayword, todayNewWord (确保是最新的，已剔除删除的卡片)
                         this.data.allword = [...myCards];
@@ -1071,14 +1113,14 @@
                             wx.setStorageSync('wordCounts', wordCounts);
                         }
                         
-                        wx.showToast({ title: '删除成功', icon: 'success' });    
+                        wx.showToast({ title: '删除成功', icon: 'success' });   
                         this.getRandomContent(false); // 刷新显示下一张卡片
                     }
                     this.cancelDelete();
                 },
                 cancelDelete() { this.elements.confirmDialog.style.display = 'none'; },
                 markword() {
-                    const word = this.data.displayContent;    
+                    const word = this.data.displayContent;   
                     if (!word || word === '暂无内容，请添加') { wx.showToast({ title: '没有内容可标记', icon: 'error' }); return; }
                     let markedWords = wx.getStorageSync('markedWords') || [];
                     const wordToMark = word.replace(/\n/g, NEWLINE_REPLACEMENT);
@@ -1104,8 +1146,8 @@
                 },
                 closeSpellCheck() { this.elements.spellCheckDialog.style.display = 'none'; this.data.isChecking = false; },
                 checkSpelling() {
-                    if (this.data.isChecking) return; this.data.isChecking = true; const input = this.elements.spellInput.value.trim().toLowerCase();    
-                    const correct = (this.data.displayContent || '').trim().toLowerCase();    
+                    if (this.data.isChecking) return; this.data.isChecking = true; const input = this.elements.spellInput.value.trim().toLowerCase();   
+                    const correct = (this.data.displayContent || '').trim().toLowerCase();   
 
                     const msgContainer = this.elements.spellMessageContainer;
                     if (!input) { msgContainer.innerHTML = `<div class="spell-error-msg">请输入单词</div>`; this.elements.spellInput.classList.add('error'); this.data.isChecking = false; return; }
@@ -1341,17 +1383,17 @@
                     else {
                         this.elements.noMarkedMsg.style.display = 'none';
                         words.forEach(word => {
-                            const wordEl = document.createElement('div');    
-                            wordEl.className = 'marked-word';    
-                            wordEl.innerHTML = word.replace(/\n/g, '<br>');    
-                            wordEl.dataset.word = word.replace(/\n/g, NEWLINE_REPLACEMENT);    
-                            wordEl.addEventListener('click', (e) => this.selectWord(e));    
+                            const wordEl = document.createElement('div');  
+                            wordEl.className = 'marked-word';   
+                            wordEl.innerHTML = word.replace(/\n/g, '<br>');   
+                            wordEl.dataset.word = word.replace(/\n/g, NEWLINE_REPLACEMENT);   
+                            wordEl.addEventListener('click', (e) => this.selectWord(e));   
                             this.elements.container.appendChild(wordEl);
                         });
                     }
                 },
                 selectWord(e) {
-                    const word = e.currentTarget.dataset.word;    
+                    const word = e.currentTarget.dataset.word;   
                     if (this.data.selectedWord === word) {
                         this.data.selectedWord = null; e.currentTarget.classList.remove('selected'); this.elements.actionContainer.style.display = 'none';
                     } else {
@@ -1361,17 +1403,17 @@
                 },
                 deleteSelectedWord() {
                     if (!this.data.selectedWord) return;
-                    let markedWords = wx.getStorageSync('markedWords') || [];    
-                    markedWords = markedWords.filter(w => w !== this.data.selectedWord);    
+                    let markedWords = wx.getStorageSync('markedWords') || [];   
+                    markedWords = markedWords.filter(w => w !== this.data.selectedWord);   
                     wx.setStorageSync('markedWords', markedWords); wx.showToast({ title: '删除成功', icon: 'success', duration: 400 }); this.loadMarkedWords();
                 },
                 travelSelectedWord() {
-                    const word = this.data.selectedWord;    
+                    const word = this.data.selectedWord;   
                     if (!word) { wx.showToast({ title: '没有选中内容', icon: 'error' }); return; }
                     const actualWord = word.replace(new RegExp(NEWLINE_REPLACEMENT, 'g'), '\n');
-                    wx.setClipboardData({ data: actualWord });    
-                    const encodedWord = encodeURIComponent(actualWord.trim());    
-                    const url = `eudic://dict/${encodedWord}`;    
+                    wx.setClipboardData({ data: actualWord });   
+                    const encodedWord = encodeURIComponent(actualWord.trim());   
+                    const url = `eudic://dict/${encodedWord}`;   
                     window.location.href = url;
                 }
             },
@@ -1380,41 +1422,7 @@
         // --- Initialize App ---
         Object.values(app).forEach(pageModule => { if(typeof pageModule.onLoad === 'function') pageModule.onLoad(); });
         navigateTo('page1');
-            
-        // 如果 localStorage 中没有 myCards，则添加一些 demo 数据
-        /*
-        if (!localStorage.getItem('myCards')) {
-            const today = new Date().toLocaleDateString('en-CA');
-            const demoWords = [
-                { word: 'Welcome to MyCards', pastday: 0, createDate: today },
-                { word: '这是一个例子。这是一个多行\n内容的例子。', pastday: 0, createDate: today },
-                { word: '过去一天单词', pastday: 1, createDate: new Date(new Date().setDate(new Date().getDate() - 1)).toLocaleDateString('en-CA') }, 
-                { word: '过去两天单词', pastday: 2, createDate: new Date(new Date().setDate(new Date().getDate() - 2)).toLocaleDateString('en-CA') },
-                { word: '过去四天单词', pastday: 4, createDate: new Date(new Date().setDate(new Date().getDate() - 4)).toLocaleDateString('en-CA') },
-                { word: '过去七天单词', pastday: 7, createDate: new Date(new Date().setDate(new Date().getDate() - 7)).toLocaleDateString('en-CA') },
-                { word: '过去十五天单词', pastday: 15, createDate: new Date(new Date().setDate(new Date().getDate() - 15)).toLocaleDateString('en-CA') },
-                { word: '过去三十天单词', pastday: 30, createDate: new Date(new Date().setDate(new Date().getDate() - 30)).toLocaleDateString('en-CA') },
-                { word: '过去六十天单词', pastday: 60, createDate: new Date(new Date().setDate(new Date().getDate() - 60)).toLocaleDateString('en-CA') },
-                { word: '过去九十天单词', pastday: 90, createDate: new Date(new Date().setDate(new Date().getDate() - 90)).toLocaleDateString('en-CA') },
-                { word: '过去一百二十天单词', pastday: 120, createDate: new Date(new Date().setDate(new Date().getDate() - 120)).toLocaleDateString('en-CA') },
-                { word: 'Hello\nWorld', pastday: 0, createDate: today },
-                { word: 'Another\nLine\nExample', pastday: 15, createDate: new Date(new Date().setDate(new Date().getDate() - 15)).toLocaleDateString('en-CA') },
-            ];
-            const processedDemoWords = demoWords.map(card => {
-                if (card.word.includes('\n')) {
-                    return { ...card, word: card.word.replace(/\n/g, NEWLINE_REPLACEMENT) };
-                }
-                return card;
-            });
-            localStorage.setItem('myCards', JSON.stringify(processedDemoWords));
-            // 首次设置allword和todayword和todayNewWord
-            localStorage.setItem('allword', JSON.stringify(processedDemoWords));
-            localStorage.setItem('todayword', JSON.stringify(processedDemoWords.filter(card => 
-                app.page1.TODAY_PASTDAYS_FILTER.includes(card.pastday)
-            )));
-            localStorage.setItem('todayNewWord', JSON.stringify(processedDemoWords.filter(card => card.pastday === 0))); // 新增：初始化今日新增卡片
-        }
-        */ // 示例数据代码块结束
+        
     });
     </script>
     <script>
@@ -1432,4 +1440,3 @@
     </script>
 </body>
 </html>
-
