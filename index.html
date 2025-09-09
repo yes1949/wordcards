@@ -37,7 +37,6 @@
             padding: 1vw; /* 基础padding */
             box-sizing: border-box;
             padding-top: 80px; /* 为固定导航留出空间 */
-            /* --- [CSS MODIFIED] --- */
             padding-bottom: 40vw; /* 为底部固定按钮栏留出空间，防止内容被遮挡 */
         }
 
@@ -148,11 +147,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* --- [CSS MODIFIED] --- */
             padding: 2vw 4vw;
         }
         .statistics {
-            /* --- [CSS MODIFIED] --- */
             display: none; /* 隐藏旧的统计样式 */
         }
         .label { font-size: 3.73vw; color: #666; user-select: none; }
@@ -169,28 +166,25 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* --- [CSS MODIFIED] --- */
             background-color: #f5f7faf0; /* 添加背景以避免与下方滚动内容重叠 */
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
         }
+
         /* --- [CSS MODIFIED] --- */
+        /* 移除了背景、边框、阴影和内边距，使其成为一个透明的布局容器 */
         .card-display {
             flex-grow: 1; /* 填充可用垂直空间 */
             width: 100%;
             margin: 1vw 0;
-            padding: 4vw;
-            background-color: #fff;
-            border-radius: 2.67vw;
-            box-shadow: 0 0.53vw 1.6vw rgba(0, 0, 0, 0.05);
             overflow-y: auto;
             display: flex;
             justify-content: flex-start; /* 左对齐 */
             align-items: flex-start; /* 顶部对齐 */
             box-sizing: border-box;
-            min-height: auto;
-            max-height: none;
         }
+        
+        /* --- [CSS MODIFIED] --- */
         .card-content { 
             font-size: 4.27vw; 
             line-height: 1.6; 
@@ -198,10 +192,9 @@
             word-break: break-word; 
             user-select: text; 
             box-sizing: border-box;
-            /* --- [CSS MODIFIED] --- */
             text-align: left; /* 左对齐 */
             width: 100%;
-            padding: 0; /* 父容器已添加内边距 */
+            padding: 0 6vw; /* 加大了左右边距 */
         }
         .button-group { width: 100%; display: flex; flex-direction: column; gap: 2.13vw; padding-bottom: 0.67vw; box-sizing: border-box; }
         .button-row { display: flex; justify-content: space-between; gap: 1.6vw; width: 100%; }
@@ -260,14 +253,12 @@
         .right-copy { background: linear-gradient(135deg, #4caf50, #43a047); }
         #page2 .btn:active { transform: scale(0.97); opacity: 0.85; }
         .save-status { margin-top: 20px; font-size: 4.27vw; color: #2ecc71; min-height: 20px; font-weight: bold; }
-        /* --- [CSS 新增] --- */
         .version-info {
             font-size: 3.2vw;
             color: #aaa;
             text-align: center;
             margin-top: 15px; /* 与上方内容保持距离 */
         }
-        /* --- [CSS 新增结束] --- */
 
 
         /* --- 页面3 (已标记) 样式 --- */
@@ -337,7 +328,6 @@
             justify-content: center; /* 水平居中 */
             gap: 2.5vw; /* 按钮间距更大一些，防止太挤 */
             box-sizing: border-box; /* 包含padding在内的宽度计算 */
-            /* --- [CSS MODIFIED] --- */
             margin: 1vw auto 2vw auto; /* 调整边距，使其上移并与下方内容保持距离 */
         }
 
@@ -378,7 +368,6 @@
             user-select: text;
         }
 
-        /* --- [CSS MODIFICATIONS START] --- */
         /* 新增的统计行样式 */
         .statistics-row {
             width: 100%;
@@ -403,7 +392,6 @@
             margin: 0 0.5vw;
             user-select: text;
         }
-        /* --- [CSS MODIFICATIONS END] --- */
     </style>
 </head>
 <body>
