@@ -545,8 +545,6 @@
                     y: 0, z: 0, p: 0,
                     todayNewWord: [], todayNewWord1: [],
                 },
-                // --- [JS MODIFIED] ---
-                // 移除了对统计信息相关DOM元素的引用
                 elements: {
                     displayContent: document.getElementById('displayContent'), 
                     confirmDialog: document.getElementById('confirmDialog'),
@@ -566,8 +564,6 @@
                     this.onShow(); 
                 },
                 onShow() {
-                    // --- [JS MODIFIED] ---
-                    // 移除了统计信息更新相关的函数调用
                     this.loadProgress();
                     this.getRandomContent(false);
                     this.updateProgressDisplay();
@@ -606,9 +602,7 @@
                 },
                 changeMode(newMode) {
                     if (this.data.currentMode === newMode) return;
-
                     this.saveProgress();
-
                     this.data.currentMode = newMode;
                     this.renderFilterDots();
                     this.getRandomContent(false);
@@ -733,8 +727,6 @@
 
                 getRandomContent(isUserAction = false) {    
                     if (isUserAction) { 
-                        // --- [JS MODIFIED] ---
-                        // 虽然不显示，但仍在后台记录刷卡次数
                         let totalCount = (wx.getStorageSync('swipeCount') || 0) + 1;
                         wx.setStorageSync('swipeCount', totalCount);
                         this.data.swipeCount = totalCount;
@@ -970,19 +962,34 @@
                     if (markedWords.includes(wordToMark)) { wx.showToast({ title: '内容已标记', icon: 'info' }); return; }
                     markedWords.push(wordToMark); wx.setStorageSync('markedWords', markedWords); wx.showToast({ title: '✓ 已标记', icon: 'success' });
                 },
-                // [MODIFIED] 当点击穿越按钮时，此函数被调用
+
+                // =================================================================
+                // === FUNCTION MODIFIED / 函数已修改 =================================
+                // =================================================================
                 travelToEudic() {
-                    const word = this.data.displayContent;
-                    if (!word || word === '暂无内容，请添加') { wx.showToast({ title: '没有内容可穿越', icon: 'error' }); return; }
-                    // 步骤1: 将当前卡片内容复制到剪贴板
-                    wx.setClipboardData({ data: word });
-                    // 步骤2: 对内容进行编码，准备用于URL
-                    const encodedWord = encodeURIComponent(word.trim());
-                    // 步骤3: 构建欧路词典的URL Scheme
+                    // 步骤1: 尝试获取用户在页面上通过长按选择的文本
+                    const selectedText = window.getSelection().toString().trim();
+                    
+                    // 步骤2: 决定要使用的文本。
+                    // 如果selectedText有内容(即用户选择了文字)，则使用用户选择的文字；
+                    // 否则，使用卡片的全部内容。
+                    const textToTravel = selectedText ? selectedText : this.data.displayContent;
+
+                    // 步骤3: 检查最终要处理的文本是否有效
+                    if (!textToTravel || textToTravel === '暂无内容，请添加') {
+                        wx.showToast({ title: '没有内容可穿越', icon: 'error' });
+                        return;
+                    }
+
+                    // 步骤4: 复制选定的文本到剪贴板
+                    wx.setClipboardData({ data: textToTravel }); 
+
+                    // 步骤5: 对文本进行编码并跳转到欧路词典
+                    const encodedWord = encodeURIComponent(textToTravel);
                     const url = `eudic://dict/${encodedWord}`;
-                    // 步骤4: 跳转到欧路词典App进行查词
                     window.location.href = url;
                 },
+
                 openSpellCheck() {
                     if (!this.data.displayContent || this.data.displayContent === '暂无内容，请添加') {
                         wx.showToast({ title: '没有内容可拼写', icon: 'error' });
@@ -1241,18 +1248,13 @@
                     markedWords = markedWords.filter(w => w !== this.data.selectedWord);    
                     wx.setStorageSync('markedWords', markedWords); wx.showToast({ title: '删除成功', icon: 'success', duration: 400 }); this.loadMarkedWords();
                 },
-                // [MODIFIED] 当点击已标记页面中的穿越按钮时，此函数被调用
                 travelSelectedWord() {
                     const word = this.data.selectedWord;    
                     if (!word) { wx.showToast({ title: '没有选中内容', icon: 'error' }); return; }
                     const actualWord = word.replace(new RegExp(NEWLINE_REPLACEMENT, 'g'), '\n');
-                    // 步骤1: 将选中的已标记内容复制到剪贴板
                     wx.setClipboardData({ data: actualWord });    
-                    // 步骤2: 对内容进行编码，准备用于URL
                     const encodedWord = encodeURIComponent(actualWord.trim());    
-                    // 步骤3: 构建欧路词典的URL Scheme
                     const url = `eudic://dict/${encodedWord}`;    
-                    // 步骤4: 跳转到欧路词典App进行查词
                     window.location.href = url;
                 }
             },
