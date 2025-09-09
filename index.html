@@ -499,8 +499,8 @@
             touchStartX = 0;
         }
 
-        document.body.addEventListener('touchstart', handleTouchStart, false);
-        document.body.addEventListener('touchend', handleTouchEnd, false);
+        //document.body.addEventListener('touchstart', handleTouchStart, false);
+        //document.body.addEventListener('touchend', handleTouchEnd, false);
 
         function navigateTo(pageId) {
             Object.values(pages).forEach(p => p.classList.remove('active'));
@@ -1281,3 +1281,4 @@
     </script>
 </body>
 </html>
+
